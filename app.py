@@ -114,7 +114,7 @@ def build_features(country_name: str, year: int) -> pd.DataFrame:
         "delta": float(delta),
     }
     
-    FEATURES = ["year", "past_medals", "avg_last_3", "delta"]
+    FEATURES = ["past_medals", "avg_last_3", "delta"]
 
     # ensure all features exist
     for f in FEATURES:
