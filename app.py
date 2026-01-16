@@ -12,7 +12,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = BASE_DIR / "model"
 CSV_PATH = MODEL_DIR / "country_medals_ml.csv"
-PACK_PATH = MODEL_DIR / "olympics_rf_pack.joblib"
+RF_GOLD_PATH = MODEL_DIR / "rf_gold.pkl"
+RF_SILVER_PATH = MODEL_DIR / "rf_silver.pkl"
+RF_BRONZE_PATH = MODEL_DIR / "rf_bronze.pkl"
 
 # ----------------------------
 # App
@@ -47,22 +49,20 @@ df["year"] = df["year"].astype(int)
 df["count"] = df["count"].astype(float)
 
 # ----------------------------
-# Load Model Pack
+# Load Models Individuels
 # ----------------------------
-if not PACK_PATH.exists():
-    raise RuntimeError(f"Model pack not found: {PACK_PATH}")
 
-pack = joblib.load(PACK_PATH)
+if not RF_GOLD_PATH.exists():
+    raise RuntimeError(f"Model file not found: {RF_GOLD_PATH}")
+if not RF_SILVER_PATH.exists():
+    raise RuntimeError(f"Model file not found: {RF_SILVER_PATH}")
+if not RF_BRONZE_PATH.exists():
+    raise RuntimeError(f"Model file not found: {RF_BRONZE_PATH}")
 
-for k in ["features", "rf_gold", "rf_silver", "rf_bronze"]:
-    if k not in pack:
-        raise RuntimeError(f"Joblib pack missing key: {k}")
-
-FEATURES = list(pack["features"])
-rf_gold = pack["rf_gold"]
-rf_silver = pack["rf_silver"]
-rf_bronze = pack["rf_bronze"]
-
+# Charger les modèles
+rf_gold = joblib.load(RF_GOLD_PATH)
+rf_silver = joblib.load(RF_SILVER_PATH)
+rf_bronze = joblib.load(RF_BRONZE_PATH)
 # ----------------------------
 # Helpers
 # ----------------------------
@@ -113,6 +113,8 @@ def build_features(country_name: str, year: int) -> pd.DataFrame:
         "avg_last_3": float(avg_last_3),
         "delta": float(delta),
     }
+    
+    FEATURES = ["year", "past_medals", "avg_last_3", "delta"]
 
     # ensure all features exist
     for f in FEATURES:
